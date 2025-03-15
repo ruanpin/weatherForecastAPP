@@ -143,7 +143,7 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
         latitude: result?.[0]?.lat,
         longitude: result?.[0]?.lon,
       }));
-      dispatch(setSelectedCity(result?.[0]?.name));
+      dispatch(setSelectedCity(city));
 
       if (!result?.[0]?.lat || !result?.[0]?.lon) {
         dispatch(setIsSearchProcessing_current(false));
