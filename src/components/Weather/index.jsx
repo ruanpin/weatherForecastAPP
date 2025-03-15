@@ -1,4 +1,4 @@
-import { Sun, Cloudy, CloudSun, CloudDrizzle, CloudRainWind, Wind, Droplets } from 'lucide-react';
+import { Sun, Cloudy, CloudSun, CloudFog, CloudDrizzle, CloudRain, CloudRainWind, CloudSnow, CloudHail, CloudLightning, Wind, Droplets, Minus } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import MyInput from '@/components/MyInput';
@@ -11,7 +11,38 @@ import { useLazySearchCityQuery } from '@/redux/services/cityApi';
 import { useLazyGetCityWeatherCurrentQuery } from '@/redux/services/weatherApi'
 
 import { useLazyGetLatitudeLongitudeQuery } from '@/redux/services/latitudeAndLongitudeApi';
-import { setLatitudeLongitude } from '@/redux/slices/weatherSlice';
+import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing } from '@/redux/slices/weatherSlice';
+
+const weatherCodeToIcon = {
+  0: Sun,
+  1: CloudSun,
+  2: CloudSun,
+  3: Cloudy,
+  45: CloudFog,
+  48: CloudFog,
+  51: CloudDrizzle,
+  53: CloudDrizzle,
+  55: CloudDrizzle,
+  56: CloudDrizzle,
+  57: CloudDrizzle,
+  61: CloudRain,
+  63: CloudRain,
+  65: CloudRainWind,
+  66: CloudRain,
+  67: CloudRainWind,
+  71: CloudSnow,
+  73: CloudSnow,
+  75: CloudSnow,
+  77: CloudSnow,
+  80: CloudRain,
+  81: CloudRain,
+  82: CloudRainWind,
+  85: CloudSnow,
+  86: CloudSnow,
+  95: CloudLightning,
+  96: CloudLightning,
+  99: CloudLightning,
+};
 
 function Weather({ children }) {
   return children;
@@ -98,12 +129,21 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
   // 查詢經緯度後儲存至Redux
   const fetchLatLong = async (city) => {
     try {
+      dispatch(setIsSearchProcessing(true));
       const result = await getLatitudeLongitude(city).unwrap();
       dispatch(setLatitudeLongitude({
         latitude: result?.[0]?.lat,
         longitude: result?.[0]?.lon,
       }));
+      if (!result?.[0]?.lat || !result?.[0]?.lon) {
+        dispatch(setIsSearchProcessing(false));
+        dispatch(setLatitudeLongitude({
+          latitude: null,
+          longitude: null,
+        }));
+      }
     } catch (error) {
+      dispatch(setIsSearchProcessing(false));
       console.error('Error fetching latitude and longitude:', error);
     }
   };
@@ -114,6 +154,7 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
     setIsDropdownOpen(false);
     
     if (city) {
+      dispatch(setSelectedCity(city));
       fetchLatLong(city);
     }
   };
@@ -175,16 +216,38 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
 // }
 
 function Weather_Current() {
-  const [isShow] = useState(false)
+  const dispatch = useDispatch();
+  const citysName = useSelector((state) => state.weather.selectedCity);
   const citysLatitudeLongitude = useSelector((state) => state.weather.citysLatitudeLongitude);
-  const [getCityWeatherCurrent] = useLazyGetCityWeatherCurrentQuery();
+  const [getCityWeatherCurrent, { isFetching }] = useLazyGetCityWeatherCurrentQuery();
+  const [weatherData, setWeatherData] = useState({
+    weatherCode: "",
+    temperature_2m: "",
+    temperature_2m_unit: "",
+    wind_speed_10m: "",
+    wind_speed_10m_unit: "",
+    relative_humidity_2m: "",
+    relative_humidity_2m_unit: ""
+  })
 
   const fetchWeather = async (latitudeLongitude) => {
     try {
       const result = await getCityWeatherCurrent(latitudeLongitude).unwrap();
       console.log(result, 'weatherCurrently')
+
+      setWeatherData(() => ({
+        weatherCode: result?.current?.weather_code,
+        temperature_2m: result?.current?.temperature_2m,
+        temperature_2m_unit: result?.current_units?.temperature_2m,
+        wind_speed_10m: result?.current?.wind_speed_10m,
+        wind_speed_10m_unit: result?.current_units?.wind_speed_10m,
+        relative_humidity_2m: result?.current?.relative_humidity_2m,
+        relative_humidity_2m_unit: result?.current_units?.relative_humidity_2m
+      }))
     } catch (error) {
       console.error('Error fetching weather data:', error);
+    } finally {
+      dispatch(setIsSearchProcessing(false));
     }
   };
   
@@ -192,38 +255,45 @@ function Weather_Current() {
     if (citysLatitudeLongitude.latitude && citysLatitudeLongitude.longitude) {
       fetchWeather(citysLatitudeLongitude)
     }
+    if (citysLatitudeLongitude.latitude === null && citysLatitudeLongitude.longitude === null) {
+      setWeatherData(() => ({
+        weatherCode: undefined,
+        temperature_2m: 'no data',
+        temperature_2m_unit: '',
+        wind_speed_10m: 'no data',
+        wind_speed_10m_unit: '',
+        relative_humidity_2m: 'no data',
+        relative_humidity_2m_unit: ''
+      }))
+    }
   }, [citysLatitudeLongitude.latitude, citysLatitudeLongitude.longitude])
+
+  const WeatherIcon = weatherCodeToIcon[weatherData?.weatherCode] || Minus;
   return (
     <div className="flex justify-center items-center px-4 my-4">
       <MyCard>
         <div className="flex-1 flex justify-center items-center mb-6 md:mb-0">
-          <Sun className="w-32 h-32 text-yellow-500"/>
+          {
+            isFetching
+            ? <Loading />
+            : <WeatherIcon className="w-32 h-32 text-gray-500"/>
+          }
         </div>
         <div className="flex flex-col text-center md:text-left flex-1 ">
-          <div className="text-[1.8em]">台北市, 台灣</div>
-          <div className="text-[3em]">28°C</div>
+          <div className="text-[1.8em]">{ citysName || '-'}</div>
+          <div className="text-[3em]">{weatherData.temperature_2m || '-'} {weatherData.temperature_2m_unit || '-'}</div>
         </div>
         <div className="flex flex-col gap-2 justify-center md:justify-start flex-1">
           <div className="flex items-center gap-3 justify-center justify-start">
             <Wind className="w-9 h-9 text-black" />
-            <span className="text-[1.5em]">40 mph</span>
+            <span className="text-[1.5em]">{weatherData.wind_speed_10m || '-'} {weatherData.wind_speed_10m_unit || '-'}</span>
           </div>
           <div className="flex items-center gap-3 justify-center justify-start">
             <Droplets className="w-9 h-9 text-black" />
-            <span className="text-[1.5em]">60 %</span>
+            <span className="text-[1.5em]">{weatherData.relative_humidity_2m || '-'} {weatherData.relative_humidity_2m_unit || '-'}</span>
           </div>
+
         </div>
-        
-        {
-          isShow && (
-            <div>
-              <CloudSun className="w-12 h-12"/>
-              <Cloudy className="w-12 h-12 text-gray-500"/>
-              <CloudDrizzle className="w-12 h-12 text-gray-500"/>
-              <CloudRainWind className="w-12 h-12 text-gray-500"/>
-            </div>
-          )
-        }
       </MyCard>
     </div>
   )
@@ -281,4 +351,4 @@ Weather.Search = Search;
 Weather.Weather_Current = Weather_Current
 Weather.Weather_forecast = Weather_forecast
 
-export default Weather; 
+export default Weather;
