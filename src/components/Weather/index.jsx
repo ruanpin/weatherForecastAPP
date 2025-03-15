@@ -171,7 +171,7 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
     }
   };
   return (
-    <div className="absolute top-full w-full left-1/2 -translate-x-1/2 max-h-[300px] z-50 px-4 flex justify-center">
+    <div className="absolute top-full w-full max-h-[300px] z-50 px-4 flex justify-center">
       <ul className="
         max-w-[800px] w-full
         bg-white border border-gray-300 shadow-lg rounded-md
