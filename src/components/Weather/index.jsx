@@ -1,4 +1,4 @@
-import { Sun, Cloudy, CloudSun, CloudFog, CloudDrizzle, CloudRain, CloudRainWind, CloudSnow, CloudHail, CloudLightning, Wind, Droplets, Minus } from 'lucide-react';
+import { Sun, Cloudy, CloudSun, CloudFog, CloudDrizzle, CloudRain, CloudRainWind, CloudSnow, CloudLightning, Wind, Droplets, Minus } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import MyInput from '@/components/MyInput';
@@ -11,7 +11,9 @@ import { useLazySearchCityQuery } from '@/redux/services/cityApi';
 import { useLazyGetCityWeatherCurrentQuery } from '@/redux/services/weatherApi'
 
 import { useLazyGetLatitudeLongitudeQuery } from '@/redux/services/latitudeAndLongitudeApi';
-import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing } from '@/redux/slices/weatherSlice';
+import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing_current, setIsSearchProcessing_forecast } from '@/redux/slices/weatherSlice';
+
+import { formatWeatherData_daily } from '@/utils/formatWeatherData'
 
 const weatherCodeToIcon = {
   0: Sun,
@@ -43,6 +45,11 @@ const weatherCodeToIcon = {
   96: CloudLightning,
   99: CloudLightning,
 };
+
+const WeatherCodeToIconComponent = (code) => {
+  const IconComponent = weatherCodeToIcon[code.code] || Minus;
+  return <IconComponent className="w-8 h-8 text-gray-500"/>
+}
 
 function Weather({ children }) {
   return children;
@@ -129,21 +136,27 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
   // 查詢經緯度後儲存至Redux
   const fetchLatLong = async (city) => {
     try {
-      dispatch(setIsSearchProcessing(true));
+      dispatch(setIsSearchProcessing_current(true));
+      dispatch(setIsSearchProcessing_forecast(true));
       const result = await getLatitudeLongitude(city).unwrap();
       dispatch(setLatitudeLongitude({
         latitude: result?.[0]?.lat,
         longitude: result?.[0]?.lon,
       }));
+      dispatch(setSelectedCity(result?.[0]?.name));
+
       if (!result?.[0]?.lat || !result?.[0]?.lon) {
-        dispatch(setIsSearchProcessing(false));
+        dispatch(setIsSearchProcessing_current(false));
+        dispatch(setIsSearchProcessing_forecast(false));
         dispatch(setLatitudeLongitude({
           latitude: null,
           longitude: null,
         }));
+        dispatch(setSelectedCity('City not found'));
       }
     } catch (error) {
-      dispatch(setIsSearchProcessing(false));
+      dispatch(setIsSearchProcessing_current(false));
+      dispatch(setIsSearchProcessing_forecast(false));
       console.error('Error fetching latitude and longitude:', error);
     }
   };
@@ -154,7 +167,6 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
     setIsDropdownOpen(false);
     
     if (city) {
-      dispatch(setSelectedCity(city));
       fetchLatLong(city);
     }
   };
@@ -232,8 +244,8 @@ function Weather_Current() {
 
   const fetchWeather = async (latitudeLongitude) => {
     try {
-      const result = await getCityWeatherCurrent(latitudeLongitude).unwrap();
-      console.log(result, 'weatherCurrently')
+      const result = await getCityWeatherCurrent({ ...latitudeLongitude, params: '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code' }).unwrap();
+      // console.log(result, 'weatherCurrently')
 
       setWeatherData(() => ({
         weatherCode: result?.current?.weather_code,
@@ -247,7 +259,7 @@ function Weather_Current() {
     } catch (error) {
       console.error('Error fetching weather data:', error);
     } finally {
-      dispatch(setIsSearchProcessing(false));
+      dispatch(setIsSearchProcessing_current(false));
     }
   };
   
@@ -300,48 +312,58 @@ function Weather_Current() {
 }
 
 function Weather_forecast() {
+  const dispatch = useDispatch();
+  const citysLatitudeLongitude = useSelector((state) => state.weather.citysLatitudeLongitude);
+  const [getCityWeatherCurrent, { isFetching }] = useLazyGetCityWeatherCurrentQuery();
+  const [weatherData, setWeatherData] = useState([])
+
+  const fetchWeather = async (latitudeLongitude) => {
+    try {
+      const result = await getCityWeatherCurrent({ ...latitudeLongitude, params: '&daily=temperature_2m_max,temperature_2m_min,weather_code' }).unwrap();
+      // console.log(result, 'weatherCurrently')
+
+      setWeatherData(() => formatWeatherData_daily(result, 1, 6))
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+    } finally {
+      dispatch(setIsSearchProcessing_forecast(false))
+    }
+  };
+  
+  useEffect(() => {
+    if (citysLatitudeLongitude.latitude && citysLatitudeLongitude.longitude) {
+      fetchWeather(citysLatitudeLongitude)
+    }
+    if (citysLatitudeLongitude.latitude === null && citysLatitudeLongitude.longitude === null) {
+      setWeatherData(() => ([]))
+    }
+  }, [citysLatitudeLongitude.latitude, citysLatitudeLongitude.longitude])
+
+  if (weatherData.length === 0) return (
+    <div className="text-center font-semibold mt-[2.5em]">
+      <div className="text-[1.7rem]">Welcome!</div>
+      <div className="text-[1.3rem]">Please enter the city name<span className="whitespace-nowrap">{' : )~'}</span></div>
+    </div>
+  )
+
   return (
-    <div className="px-4 flex justify-center items-center mb-6">
+    <div className={`${weatherData.length ? 'flex' : 'hidden'} px-4 justify-center items-center mb-6 `}>
       <div
         className="
           relative flex flex-col items-center py-4 md:py-6 px-4 md:px-8 bg-[#F7F6F9] w-full max-w-[800px] rounded-[24px] gap-2 md:gap-3
         "
       >
-        <MyBox>
-          <div>3/15</div>
-          <div>28°C</div>
-          <div>
-            <Sun className="w-8 h-8 text-yellow-500"/>
-          </div>
-        </MyBox>
-        <MyBox>
-          <div>3/16</div>
-          <div>23°C</div>
-          <div>
-            <CloudSun className="w-8 h-8 text-gray-500"/>
-          </div>
-        </MyBox>
-        <MyBox>
-          <div>3/17</div>
-          <div>18°C</div>
-          <div>
-            <Cloudy className="w-8 h-8 text-gray-500"/>
-          </div>
-        </MyBox>
-        <MyBox>
-          <div>3/18</div>
-          <div>16°C</div>
-          <div>
-            <CloudDrizzle className="w-8 h-8 text-gray-500"/>
-          </div>
-        </MyBox>
-        <MyBox>
-          <div>3/19</div>
-          <div>15°C</div>
-          <div>
-            <CloudRainWind className="w-8 h-8 text-gray-500"/>
-          </div>
-        </MyBox>
+        {
+          weatherData.map((item) => (
+            <MyBox key={item.time}>
+              <div>{item.time}</div>
+              <div>{item.temperature_2m_min}{item.temperature_2m_min_unit} / {item.temperature_2m_max}{item.temperature_2m_max_unit}</div>
+              <div>
+                <WeatherCodeToIconComponent code={item.weatherCode}/>
+              </div>
+            </MyBox>
+          ))
+        }
       </div>
     </div>
   )
