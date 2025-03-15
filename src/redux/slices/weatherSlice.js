@@ -7,7 +7,9 @@ const initialState = {
     longitude: 0
   },
   isSearchProcessing_current: false,
-  isSearchProcessing_forecast: false
+  isSearchProcessing_forecast: false,
+  isError: false,
+  errorMsg: ''
 };
 
 const weatherSlice = createSlice({
@@ -25,9 +27,13 @@ const weatherSlice = createSlice({
     },
     setIsSearchProcessing_forecast: (state, action) => {
       state.isSearchProcessing_forecast = action.payload;
+    },
+    setErrorMsg: (state, action) => {
+      state.isError = action.payload.isError;
+      state.errorMsg = action.payload.errorMsg;
     }
   }
 });
 
-export const { setSelectedCity, setLatitudeLongitude, setIsSearchProcessing_current, setIsSearchProcessing_forecast } = weatherSlice.actions;
+export const { setSelectedCity, setLatitudeLongitude, setIsSearchProcessing_current, setIsSearchProcessing_forecast, setErrorMsg } = weatherSlice.actions;
 export default weatherSlice.reducer; 

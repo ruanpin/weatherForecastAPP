@@ -11,7 +11,7 @@ import { useLazySearchCityQuery } from '@/redux/services/cityApi';
 import { useLazyGetCityWeatherCurrentQuery } from '@/redux/services/weatherApi'
 
 import { useLazyGetLatitudeLongitudeQuery } from '@/redux/services/latitudeAndLongitudeApi';
-import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing_current, setIsSearchProcessing_forecast } from '@/redux/slices/weatherSlice';
+import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing_current, setIsSearchProcessing_forecast, setErrorMsg } from '@/redux/slices/weatherSlice';
 
 import { formatWeatherData_daily } from '@/utils/formatWeatherData'
 
@@ -56,6 +56,7 @@ function Weather({ children }) {
 }
 
 function Search() {
+  const dispatch = useDispatch();
   const [cityName, setCityName] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropdownList, setDropList] = useState([])
@@ -68,6 +69,7 @@ function Search() {
       setDropList(() => result?.results || [])
       } catch (err) {
         console.error('Error fetching data', err);
+        dispatch(setErrorMsg({isError: true, errorMsg: err.error}))
       }
     }, 200)
   , []);
@@ -154,10 +156,11 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
         }));
         dispatch(setSelectedCity('City not found'));
       }
-    } catch (error) {
+    } catch (err) {
       dispatch(setIsSearchProcessing_current(false));
       dispatch(setIsSearchProcessing_forecast(false));
-      console.error('Error fetching latitude and longitude:', error);
+      console.error('Error fetching latitude and longitude:', err);
+      dispatch(setErrorMsg({isError: true, errorMsg: err.error}))
     }
   };
 
@@ -256,8 +259,9 @@ function Weather_Current() {
         relative_humidity_2m: result?.current?.relative_humidity_2m,
         relative_humidity_2m_unit: result?.current_units?.relative_humidity_2m
       }))
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
+    } catch (err) {
+      console.error('Error fetching weather data:', err);
+      dispatch(setErrorMsg({isError: true, errorMsg: err.error}))
     } finally {
       dispatch(setIsSearchProcessing_current(false));
     }
@@ -314,7 +318,7 @@ function Weather_Current() {
 function Weather_forecast() {
   const dispatch = useDispatch();
   const citysLatitudeLongitude = useSelector((state) => state.weather.citysLatitudeLongitude);
-  const [getCityWeatherCurrent, { isFetching }] = useLazyGetCityWeatherCurrentQuery();
+  const [getCityWeatherCurrent] = useLazyGetCityWeatherCurrentQuery();
   const [weatherData, setWeatherData] = useState([])
 
   const fetchWeather = async (latitudeLongitude) => {
@@ -323,8 +327,9 @@ function Weather_forecast() {
       // console.log(result, 'weatherCurrently')
 
       setWeatherData(() => formatWeatherData_daily(result, 1, 6))
-    } catch (error) {
-      console.error('Error fetching weather data:', error);
+    } catch (err) {
+      console.error('Error fetching weather data:', err);
+      dispatch(setErrorMsg({isError: true, errorMsg: err.error}))
     } finally {
       dispatch(setIsSearchProcessing_forecast(false))
     }
