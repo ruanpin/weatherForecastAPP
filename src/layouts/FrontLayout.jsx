@@ -12,10 +12,10 @@ export default function FrontLayout() {
   const isError = useSelector((state) => state.weather.isError);
   const errorMsg = useSelector((state) => state.weather.errorMsg);
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative">
       {
         isSearchProcessing_current || isSearchProcessing_forecast ? (
-        <div className="absolute inset-0 bg-gray-800 opacity-50 flex justify-center items-center z-99">
+        <div className="absolute top-0 left-0 right-0 bottom-0 bg-gray-800 opacity-50 flex justify-center items-center z-99">
           <Loading size={'w-25 h-25'}/>
         </div>) : ''
       }

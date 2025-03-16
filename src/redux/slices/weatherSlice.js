@@ -9,7 +9,8 @@ const initialState = {
   isSearchProcessing_current: false,
   isSearchProcessing_forecast: false,
   isError: false,
-  errorMsg: ''
+  errorMsg: '',
+  temperature_unit: '°C',
 };
 
 const weatherSlice = createSlice({
@@ -31,9 +32,19 @@ const weatherSlice = createSlice({
     setErrorMsg: (state, action) => {
       state.isError = action.payload.isError;
       state.errorMsg = action.payload.errorMsg;
-    }
+    },
+    setTemperature_unit: (state) => {
+      state.temperature_unit = state.temperature_unit === '°C' ? '°F' : '°C';
+    },
   }
 });
 
-export const { setSelectedCity, setLatitudeLongitude, setIsSearchProcessing_current, setIsSearchProcessing_forecast, setErrorMsg } = weatherSlice.actions;
+export const {
+  setSelectedCity,
+  setLatitudeLongitude,
+  setIsSearchProcessing_current,
+  setIsSearchProcessing_forecast,
+  setErrorMsg,
+  setTemperature_unit
+} = weatherSlice.actions;
 export default weatherSlice.reducer; 

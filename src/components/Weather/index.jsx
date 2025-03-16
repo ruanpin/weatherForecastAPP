@@ -11,7 +11,7 @@ import { useLazySearchCityQuery } from '@/redux/services/cityApi';
 import { useLazyGetCityWeatherCurrentQuery } from '@/redux/services/weatherApi'
 
 import { useLazyGetLatitudeLongitudeQuery } from '@/redux/services/latitudeAndLongitudeApi';
-import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing_current, setIsSearchProcessing_forecast, setErrorMsg } from '@/redux/slices/weatherSlice';
+import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing_current, setIsSearchProcessing_forecast, setErrorMsg, setTemperature_unit } from '@/redux/slices/weatherSlice';
 
 import { formatWeatherData_daily } from '@/utils/formatWeatherData'
 import { validateEnglishCommaSpaceEmpty } from '@/utils/formatValidate'
@@ -64,8 +64,7 @@ function Search() {
   const [searchCity, { isError, isFetching }] = useLazySearchCityQuery(); // 輸入框提示區塊搜尋城市API
   const [isInputFormatValid, setIsInputFormatValid] = useState(true)
 
-  const debouncedSearch = useCallback(
-    debounce(async (query) => {
+  const debouncedSearch = debounce(async (query) => {
       try {
       const result = await searchCity(query).unwrap()
       setDropList(() => result?.results || [])
@@ -73,8 +72,7 @@ function Search() {
         console.error('Error fetching data', err);
         dispatch(setErrorMsg({isError: true, errorMsg: err.error}))
       }
-    }, 200)
-  , []);
+    }, 200);
 
   // user在input輸入後進行開啟Dropdown並取得關鍵字關聯地區（如Google search打字時提示框）
   const handleSearch = (value) => {
@@ -268,10 +266,15 @@ function Weather_Current() {
     relative_humidity_2m: "",
     relative_humidity_2m_unit: ""
   })
+  const temperature_unit = useSelector((state) => state.weather.temperature_unit);
 
-  const fetchWeather = async (latitudeLongitude) => {
+  const fetchWeather = useCallback(async (latitudeLongitude, temperature_unit) => {
+    console.log(temperature_unit, temperature_unit==='°C', '999')
     try {
-      const result = await getCityWeatherCurrent({ ...latitudeLongitude, params: '&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code' }).unwrap();
+      const result = await getCityWeatherCurrent({
+        ...latitudeLongitude,
+        params: `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code${temperature_unit === '°C' ? '' : '&temperature_unit=fahrenheit'}`
+      }).unwrap();
       // console.log(result, 'weatherCurrently')
 
       setWeatherData(() => ({
@@ -289,11 +292,12 @@ function Weather_Current() {
     } finally {
       dispatch(setIsSearchProcessing_current(false));
     }
-  };
+  }, [getCityWeatherCurrent, dispatch]);
   
   useEffect(() => {
     if (citysLatitudeLongitude.latitude && citysLatitudeLongitude.longitude) {
-      fetchWeather(citysLatitudeLongitude)
+      dispatch(setIsSearchProcessing_current(true));
+      fetchWeather(citysLatitudeLongitude, temperature_unit)
     }
     if (citysLatitudeLongitude.latitude === null && citysLatitudeLongitude.longitude === null) {
       setWeatherData(() => ({
@@ -306,7 +310,8 @@ function Weather_Current() {
         relative_humidity_2m_unit: ''
       }))
     }
-  }, [citysLatitudeLongitude.latitude, citysLatitudeLongitude.longitude])
+  }, [citysLatitudeLongitude.latitude, citysLatitudeLongitude.longitude, dispatch, fetchWeather, citysLatitudeLongitude, temperature_unit])
+
 
   const WeatherIcon = weatherCodeToIcon[weatherData?.weatherCode] || Minus;
 
@@ -333,7 +338,15 @@ function Weather_Current() {
             <Droplets className="w-9 h-9 text-black" />
             <span className="text-[1.5em] break-words">{weatherData.relative_humidity_2m || '-'} {weatherData.relative_humidity_2m_unit || '-'}</span>
           </div>
-
+        </div>
+        {/* <div className="absolute top-4 cursor-pointer left-4 font-bold  w-[1.5em] h-[1.5em]  z-10" onClick={() => dispatch(setTemperature_unit())}>
+          <div className=" bg-red rounded">{temperature_unit}</div>
+        </div> */}
+        <div
+          className="absolute top-4 left-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-black rounded-lg z-10 shadow"
+          onClick={() => dispatch(setTemperature_unit())}
+        >
+          <div className="">{temperature_unit}</div>
         </div>
       </MyCard>
     </div>
@@ -345,10 +358,14 @@ function Weather_forecast() {
   const citysLatitudeLongitude = useSelector((state) => state.weather.citysLatitudeLongitude);
   const [getCityWeatherCurrent] = useLazyGetCityWeatherCurrentQuery();
   const [weatherData, setWeatherData] = useState([])
+  const temperature_unit = useSelector((state) => state.weather.temperature_unit);
 
-  const fetchWeather = async (latitudeLongitude) => {
+  const fetchWeather = useCallback(async (latitudeLongitude, temperature_unit) => {
     try {
-      const result = await getCityWeatherCurrent({ ...latitudeLongitude, params: '&daily=temperature_2m_max,temperature_2m_min,weather_code' }).unwrap();
+      const result = await getCityWeatherCurrent({
+        ...latitudeLongitude,
+        params: `&daily=temperature_2m_max,temperature_2m_min,weather_code${temperature_unit === '°C' ? '' : '&temperature_unit=fahrenheit'}`
+      }).unwrap();
       // console.log(result, 'weatherCurrently')
 
       setWeatherData(() => formatWeatherData_daily(result, 5))
@@ -358,16 +375,17 @@ function Weather_forecast() {
     } finally {
       dispatch(setIsSearchProcessing_forecast(false))
     }
-  };
+  }, [getCityWeatherCurrent, dispatch]);
   
   useEffect(() => {
     if (citysLatitudeLongitude.latitude && citysLatitudeLongitude.longitude) {
-      fetchWeather(citysLatitudeLongitude)
+      dispatch(setIsSearchProcessing_forecast(true));
+      fetchWeather(citysLatitudeLongitude, temperature_unit)
     }
     if (citysLatitudeLongitude.latitude === null && citysLatitudeLongitude.longitude === null) {
       setWeatherData(() => ([]))
     }
-  }, [citysLatitudeLongitude.latitude, citysLatitudeLongitude.longitude])
+  }, [citysLatitudeLongitude.latitude, citysLatitudeLongitude.longitude, dispatch, fetchWeather, citysLatitudeLongitude, temperature_unit])
 
   if (weatherData.length === 0) return (
     <div className="text-center font-semibold mt-[2.5em]">
@@ -377,7 +395,7 @@ function Weather_forecast() {
   )
 
   return (
-    <div className={`${weatherData.length ? 'flex' : 'hidden'} px-4 justify-center items-center mb-6 `}>
+    <div className={`${weatherData.length ? 'flex' : 'hidden'} px-4 justify-center items-center pb-6 `}>
       <div
         className="
           relative flex flex-col items-center py-4 md:py-6 px-4 md:px-8 bg-[#F7F6F9] w-full max-w-[800px] rounded-[24px] gap-2 md:gap-3
