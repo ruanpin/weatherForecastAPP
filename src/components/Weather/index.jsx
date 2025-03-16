@@ -1,10 +1,11 @@
-import { Sun, Cloudy, CloudSun, CloudFog, CloudDrizzle, CloudRain, CloudRainWind, CloudSnow, CloudLightning, Wind, Droplets, Minus, OctagonAlert } from 'lucide-react';
+import { Sun, Cloudy, CloudSun, CloudFog, CloudDrizzle, CloudRain, CloudRainWind, CloudSnow, CloudLightning, Wind, Droplets, Minus, OctagonAlert, Heart, AlignLeft } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import MyInput from '@/components/MyInput';
 import MyCard from '@/components/MyCard'
 import MyBox from '@/components/MyBox'
 import Loading from '@/components/Loading'
+import MyPopup from '@/components/MyPopup'
 import debounce from '@/utils/debounce';
 
 import { useLazySearchCityQuery } from '@/redux/services/cityApi';
@@ -200,7 +201,7 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
       <ul className="
         max-w-[800px] w-full
         bg-white border border-gray-300 shadow-lg rounded-md
-        max-h-[300px] z-50 border-solid 
+        max-h-[300px] z-50 border-solid
       ">
         {
           isFetching ? (
@@ -267,6 +268,9 @@ function Weather_Current() {
     relative_humidity_2m_unit: ""
   })
   const temperature_unit = useSelector((state) => state.weather.temperature_unit);
+  // 我的最愛功能
+  const [showPopup, setShowPopup] = useState(false);
+
 
   const fetchWeather = useCallback(async (latitudeLongitude, temperature_unit) => {
     console.log(temperature_unit, temperature_unit==='°C', '999')
@@ -312,7 +316,6 @@ function Weather_Current() {
     }
   }, [citysLatitudeLongitude.latitude, citysLatitudeLongitude.longitude, dispatch, fetchWeather, citysLatitudeLongitude, temperature_unit])
 
-
   const WeatherIcon = weatherCodeToIcon[weatherData?.weatherCode] || Minus;
 
   return (
@@ -325,7 +328,7 @@ function Weather_Current() {
             : <WeatherIcon className="w-32 h-32 text-gray-500"/>
           }
         </div>
-        <div className="flex flex-col text-center md:text-left flex-1 max-w-[350px]">
+        <div className="flex flex-col text-center md:text-left flex-1 max-w-[300px] md:max-x-[350px]">
           <div className="text-[1.8em] break-words">{ citysName || '-'}</div>
           <div className="text-[3em] break-words">{weatherData.temperature_2m || '-'} {weatherData.temperature_2m_unit || '-'}</div>
         </div>
@@ -339,16 +342,42 @@ function Weather_Current() {
             <span className="text-[1.5em] break-words">{weatherData.relative_humidity_2m || '-'} {weatherData.relative_humidity_2m_unit || '-'}</span>
           </div>
         </div>
-        {/* <div className="absolute top-4 cursor-pointer left-4 font-bold  w-[1.5em] h-[1.5em]  z-10" onClick={() => dispatch(setTemperature_unit())}>
-          <div className=" bg-red rounded">{temperature_unit}</div>
-        </div> */}
         <div
           className="absolute top-4 left-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-gray-600 rounded-lg z-10 border-2 border-solid border-gray-400"
           onClick={() => dispatch(setTemperature_unit())}
         >
           <div className="">{temperature_unit}</div>
         </div>
+        <div
+          className="absolute top-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-gray-600 rounded-lg z-10 border-2 border-solid border-gray-400"
+          onClick={() => {setShowPopup(true)}}
+        >
+          <div className="">
+            <AlignLeft />
+          </div>
+        </div>
+        <div
+          className="absolute bottom-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-gray-600 rounded-lg z-10 border-2 border-solid border-gray-400"
+          onClick={() => {}}
+        >
+          <div className="">
+            <Heart />
+          </div>
+        </div>
       </MyCard>
+      <MyPopup
+        isOpen={showPopup}
+        onClose={() => setShowPopup(false)}
+        title="My Favorites"
+        confirmText="Confirm"
+      >
+        <p className="text-gray-600">title</p>
+        <ul className="list-disc ml-6 mt-2 text-gray-600">
+          <li>各地天氣</li>
+          <li>天氣狀況</li>
+          <li>天氣預報</li>
+        </ul>
+      </MyPopup>
     </div>
   )
 }

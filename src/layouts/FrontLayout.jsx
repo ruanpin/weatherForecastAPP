@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import Loading from '@/components/Loading'
 import { setErrorMsg } from '@/redux/slices/weatherSlice';
-import { X } from 'lucide-react';
 
 export default function FrontLayout() {
   const dispatch = useDispatch();
@@ -11,6 +10,7 @@ export default function FrontLayout() {
   const isSearchProcessing_forecast = useSelector((state) => state.weather.isSearchProcessing_forecast);
   const isError = useSelector((state) => state.weather.isError);
   const errorMsg = useSelector((state) => state.weather.errorMsg);
+
   return (
     <div className="flex flex-col min-h-screen relative">
       {
