@@ -343,7 +343,7 @@ function Weather_Current() {
           <div className=" bg-red rounded">{temperature_unit}</div>
         </div> */}
         <div
-          className="absolute top-4 left-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-gray-700 rounded-lg z-10 border-2 border-solid border-gray-400"
+          className="absolute top-4 left-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-gray-600 rounded-lg z-10 border-2 border-solid border-gray-400"
           onClick={() => dispatch(setTemperature_unit())}
         >
           <div className="">{temperature_unit}</div>
