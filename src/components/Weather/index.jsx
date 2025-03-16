@@ -320,18 +320,18 @@ function Weather_Current() {
             : <WeatherIcon className="w-32 h-32 text-gray-500"/>
           }
         </div>
-        <div className="flex flex-col text-center md:text-left flex-1 ">
-          <div className="text-[1.8em]">{ citysName || '-'}</div>
-          <div className="text-[3em]">{weatherData.temperature_2m || '-'} {weatherData.temperature_2m_unit || '-'}</div>
+        <div className="flex flex-col text-center md:text-left flex-1 max-w-[350px]">
+          <div className="text-[1.8em] break-words">{ citysName || '-'}</div>
+          <div className="text-[3em] break-words">{weatherData.temperature_2m || '-'} {weatherData.temperature_2m_unit || '-'}</div>
         </div>
         <div className="flex flex-col gap-2 justify-center md:justify-start flex-1">
           <div className="flex items-center gap-3 justify-center justify-start">
             <Wind className="w-9 h-9 text-black" />
-            <span className="text-[1.5em]">{weatherData.wind_speed_10m || '-'} {weatherData.wind_speed_10m_unit || '-'}</span>
+            <span className="text-[1.5em] break-words">{weatherData.wind_speed_10m || '-'} {weatherData.wind_speed_10m_unit || '-'}</span>
           </div>
           <div className="flex items-center gap-3 justify-center justify-start">
             <Droplets className="w-9 h-9 text-black" />
-            <span className="text-[1.5em]">{weatherData.relative_humidity_2m || '-'} {weatherData.relative_humidity_2m_unit || '-'}</span>
+            <span className="text-[1.5em] break-words">{weatherData.relative_humidity_2m || '-'} {weatherData.relative_humidity_2m_unit || '-'}</span>
           </div>
 
         </div>
