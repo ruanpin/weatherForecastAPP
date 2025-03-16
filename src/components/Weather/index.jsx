@@ -154,10 +154,13 @@ function Search() {
 
 function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdownOpen }) {
   const dispatch = useDispatch();
+  const selectedCity = useSelector((state) => state.weather.selectedCity)
   const [getLatitudeLongitude] = useLazyGetLatitudeLongitudeQuery();
 
   // 查詢經緯度後儲存至Redux
   const fetchLatLong = async (city) => {
+    if (selectedCity === city) return
+    
     try {
       dispatch(setIsSearchProcessing_current(true));
       dispatch(setIsSearchProcessing_forecast(true));
