@@ -19,7 +19,7 @@ export default function FrontLayout() {
           <Loading size={'w-25 h-25'}/>
         </div>) : ''
       }
-      <div className="text-center text-[1.6em] md:text-[2em] py-[.8em] font-bold">Weather Forecast App</div>
+      <div className="text-center text-[1.6em] md:text-[2em] py-[.8em] font-bold mb-4">Weather Forecast App</div>
       <main className="flex-1">
         <Outlet />
       </main>

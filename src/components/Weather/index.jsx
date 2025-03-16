@@ -1,4 +1,4 @@
-import { Sun, Cloudy, CloudSun, CloudFog, CloudDrizzle, CloudRain, CloudRainWind, CloudSnow, CloudLightning, Wind, Droplets, Minus } from 'lucide-react';
+import { Sun, Cloudy, CloudSun, CloudFog, CloudDrizzle, CloudRain, CloudRainWind, CloudSnow, CloudLightning, Wind, Droplets, Minus, OctagonAlert } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import MyInput from '@/components/MyInput';
@@ -14,6 +14,7 @@ import { useLazyGetLatitudeLongitudeQuery } from '@/redux/services/latitudeAndLo
 import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing_current, setIsSearchProcessing_forecast, setErrorMsg } from '@/redux/slices/weatherSlice';
 
 import { formatWeatherData_daily } from '@/utils/formatWeatherData'
+import { validateEnglishCommaSpaceEmpty } from '@/utils/formatValidate'
 
 const weatherCodeToIcon = {
   0: Sun,
@@ -61,6 +62,7 @@ function Search() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropdownList, setDropList] = useState([])
   const [searchCity, { isError, isFetching }] = useLazySearchCityQuery(); // 輸入框提示區塊搜尋城市API
+  const [isInputFormatValid, setIsInputFormatValid] = useState(true)
 
   const debouncedSearch = useCallback(
     debounce(async (query) => {
@@ -77,6 +79,15 @@ function Search() {
   // user在input輸入後進行開啟Dropdown並取得關鍵字關聯地區（如Google search打字時提示框）
   const handleSearch = (value) => {
     setCityName(value);
+    // 檢查input格式
+    if (validateEnglishCommaSpaceEmpty(value)) {
+      setIsInputFormatValid(true)
+    } else {
+      setIsInputFormatValid(false)
+      setIsDropdownOpen(false);
+      return
+    }
+    
     if (value) {
       setIsDropdownOpen(true);
       debouncedSearch(value)
@@ -117,8 +128,18 @@ function Search() {
         }}
       />
       {
+        !isInputFormatValid
+        && (<div className="absolute top-full w-full z-50 px-4 flex justify-center">
+              <div className="max-w-[800px] w-full text-[#AF241B] flex items-center gap-1.5 pl-3">
+                <div className="flex items-start h-[100%]"><OctagonAlert size={20} className="p-1"/></div>
+                <div className="text-[14px]">Only English letters, commas, and spaces are allowed.</div>
+              </div>
+          </div>)
+      }
+      
+      {
         isDropdownOpen
-        && cityName.length >= 2
+        && cityName.length >= 1
         &&  <Dropdown
               isFetching={isFetching}
               isError={isError}
@@ -285,8 +306,9 @@ function Weather_Current() {
   }, [citysLatitudeLongitude.latitude, citysLatitudeLongitude.longitude])
 
   const WeatherIcon = weatherCodeToIcon[weatherData?.weatherCode] || Minus;
+
   return (
-    <div className="flex justify-center items-center px-4 my-4">
+    <div className="flex justify-center items-center px-4 my-10">
       <MyCard>
         <div className="flex-1 flex justify-center items-center mb-6 md:mb-0">
           {
@@ -361,8 +383,8 @@ function Weather_forecast() {
         {
           weatherData.map((item) => (
             <MyBox key={item.time}>
-              <div>{item.time}</div>
-              <div>{item.temperature_2m_min}{item.temperature_2m_min_unit} / {item.temperature_2m_max}{item.temperature_2m_max_unit}</div>
+              <div>{item.time || '-'}</div>
+              <div>{item.temperature_2m_min || '-'}{item.temperature_2m_min_unit || '-'} / {item.temperature_2m_max || '-'}{item.temperature_2m_max_unit || '-'}</div>
               <div>
                 <WeatherCodeToIconComponent code={item.weatherCode}/>
               </div>
