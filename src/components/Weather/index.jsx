@@ -414,12 +414,16 @@ function Weather_Current() {
         >
           <AlignLeft />
         </div>
-        <div
-          className="absolute bottom-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white rounded-lg z-10 border-2 border-solid border-gray-400"
-          onClick={handleFavorite}
-        >
-          <Heart className={isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-500'} />
-        </div>
+        {
+          citysName && citysName !== 'City not found' && (
+            <div
+              className="absolute bottom-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white rounded-lg z-10 border-2 border-solid border-gray-400"
+              onClick={handleFavorite}
+            >
+              <Heart className={isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-500'} />
+            </div>
+          )
+        }
       </MyCard>
       <MyPopup
         isOpen={showPopup}
