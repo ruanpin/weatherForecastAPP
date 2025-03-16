@@ -160,7 +160,7 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
   // 查詢經緯度後儲存至Redux
   const fetchLatLong = async (city) => {
     if (selectedCity === city) return
-    
+
     try {
       dispatch(setIsSearchProcessing_current(true));
       dispatch(setIsSearchProcessing_forecast(true));
@@ -351,7 +351,7 @@ function Weather_forecast() {
       const result = await getCityWeatherCurrent({ ...latitudeLongitude, params: '&daily=temperature_2m_max,temperature_2m_min,weather_code' }).unwrap();
       // console.log(result, 'weatherCurrently')
 
-      setWeatherData(() => formatWeatherData_daily(result, 1, 6))
+      setWeatherData(() => formatWeatherData_daily(result, 5))
     } catch (err) {
       console.error('Error fetching weather data:', err);
       dispatch(setErrorMsg({isError: true, errorMsg: err.error}))

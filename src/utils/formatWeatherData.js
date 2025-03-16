@@ -6,7 +6,15 @@ const formatDate = (dateString) => {
     return `${month}/${day}`;
 };
 
-export function formatWeatherData_daily(data, startIndex, endIndex) {
+const getFormattedDate_Today = () => {
+  const date = new Date();
+  // const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${month}/${day}`;
+};
+
+export function formatWeatherData_daily(data, days = 7) {
     if (!data || typeof data !== 'object' || !data.daily || !data.daily_units) {
         console.error('Invalid data format');
         return [];
@@ -27,7 +35,12 @@ export function formatWeatherData_daily(data, startIndex, endIndex) {
         temperature_2m_min_unit: daily_units.temperature_2m_min || '',
         time: formatDate(time) || ''
       }))
-      console.log(result, 'resultresult');
+
+      const today = getFormattedDate_Today()
+      const startIndex = result.findIndex(item => {
+        return item.time === today
+      })
+      const endIndex = startIndex + days
 
       const isValidIndex = (value) => typeof value === 'number' && !isNaN(value) && value >= 0;
       return (isValidIndex(startIndex) && isValidIndex(endIndex)) ? result.slice(startIndex, endIndex) : result
