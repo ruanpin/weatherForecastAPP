@@ -437,17 +437,18 @@ function Weather_Current() {
                 favoriteCitiesList.map((city) => (
                   <li 
                     key={city.cityName} 
-                    className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
+                    className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelectFavorite(city)}
                   >
-                    <span 
-                      className="cursor-pointer flex-1"
-                      onClick={() => handleSelectFavorite(city)}
-                    >
+                    <span className="flex-1 h-[100%]">
                       {city.cityName}
                     </span>
                     <X 
                       className="w-5 h-5 text-gray-500 hover:text-red-500 transition duration-200 cursor-pointer"
-                      onClick={() =>  handleDeleteFavorite(city)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFavorite(city)
+                      }}
                     />
                   </li>
                 ))
