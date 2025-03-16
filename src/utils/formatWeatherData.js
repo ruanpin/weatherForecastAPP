@@ -37,9 +37,9 @@ export function formatWeatherData_daily(data, days = 7) {
       }))
 
       const today = getFormattedDate_Today()
-      const startIndex = result.findIndex(item => {
+      const startIndex = (result.findIndex(item => {
         return item.time === today
-      })
+      }) + 1)
       const endIndex = startIndex + days
 
       const isValidIndex = (value) => typeof value === 'number' && !isNaN(value) && value >= 0;

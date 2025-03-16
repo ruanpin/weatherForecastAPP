@@ -1,4 +1,4 @@
-import { Sun, Cloudy, CloudSun, CloudFog, CloudDrizzle, CloudRain, CloudRainWind, CloudSnow, CloudLightning, Wind, Droplets, Minus, OctagonAlert, Heart, AlignLeft } from 'lucide-react';
+import { Sun, Cloudy, CloudSun, CloudFog, CloudDrizzle, CloudRain, CloudRainWind, CloudSnow, CloudLightning, Wind, Droplets, Minus, OctagonAlert, Heart, AlignLeft, X } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import MyInput from '@/components/MyInput';
@@ -6,7 +6,6 @@ import MyCard from '@/components/MyCard'
 import MyBox from '@/components/MyBox'
 import Loading from '@/components/Loading'
 import MyPopup from '@/components/MyPopup'
-import debounce from '@/utils/debounce';
 
 import { useLazySearchCityQuery } from '@/redux/services/cityApi';
 import { useLazyGetCityWeatherCurrentQuery } from '@/redux/services/weatherApi'
@@ -14,6 +13,7 @@ import { useLazyGetCityWeatherCurrentQuery } from '@/redux/services/weatherApi'
 import { useLazyGetLatitudeLongitudeQuery } from '@/redux/services/latitudeAndLongitudeApi';
 import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing_current, setIsSearchProcessing_forecast, setErrorMsg, setTemperature_unit } from '@/redux/slices/weatherSlice';
 
+import debounce from '@/utils/debounce';
 import { formatWeatherData_daily } from '@/utils/formatWeatherData'
 import { validateEnglishCommaSpaceEmpty } from '@/utils/formatValidate'
 
@@ -138,7 +138,7 @@ function Search() {
       
       {
         isDropdownOpen
-        && cityName.length >= 1
+        && cityName.length >= 2
         &&  <Dropdown
               isFetching={isFetching}
               isError={isError}
@@ -268,12 +268,72 @@ function Weather_Current() {
     relative_humidity_2m_unit: ""
   })
   const temperature_unit = useSelector((state) => state.weather.temperature_unit);
-  // 我的最愛功能
-  const [showPopup, setShowPopup] = useState(false);
 
+  // 我的收藏城市功能
+  const [showPopup, setShowPopup] = useState(false);
+  const [favoriteCitiesList, setFavoriteCitiesList] = useState([]);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const setFavoriteCities = (newFavorites) => {
+    // 設置最新收藏城市清單進localStorage & 當前組件變數
+    localStorage.setItem('favoriteCities', JSON.stringify(newFavorites));
+    setFavoriteCitiesList(newFavorites);
+  }
+
+  useEffect(() => {
+    // 收藏城市彈窗中資料初始化和更新收藏城市list
+    const favorites = JSON.parse(localStorage.getItem('favoriteCities') || '[]');
+    setFavoriteCitiesList(favorites);
+    // 當前城市是否已收藏（愛心變紅或空白處理）
+    setIsFavorite(favorites.some(city => city.cityName === citysName));
+  }, [citysName]);
+
+  const handleFavorite = () => {
+    // 當前城市天氣右下愛心，點選處理收藏or移除
+    if (!citysName || citysName === "City not found") return;
+
+    const existingCity = favoriteCitiesList.find(city => city.cityName === citysName);
+
+    if (!existingCity) {
+      // 尚未收藏，因此收藏
+      if (citysLatitudeLongitude.latitude && citysLatitudeLongitude.longitude) {
+        const newCity = {
+          cityName: citysName,
+          lat: citysLatitudeLongitude.latitude,
+          lon: citysLatitudeLongitude.longitude
+        };
+        const newFavorites = [...favoriteCitiesList, newCity];
+        setFavoriteCities(newFavorites)
+        setIsFavorite(true);
+      }
+    } else {
+      // 已經收藏，因此移除
+      const newFavorites = favoriteCitiesList.filter(city => city.cityName !== citysName);
+      setFavoriteCities(newFavorites)
+      setIsFavorite(false);
+    }
+  };
+
+  // 從收藏彈窗中選擇特定城市
+  const handleSelectFavorite = (city) => {
+    dispatch(setSelectedCity(city.cityName));
+    dispatch(setLatitudeLongitude({
+      latitude: city.lat,
+      longitude: city.lon
+    }));
+    setShowPopup(false);
+  };
+
+  // 從收藏彈窗中移除特定城市
+  const handleDeleteFavorite = (city) => {
+    const newFavorites = favoriteCitiesList.filter(item => item.cityName !== city.cityName);
+    setFavoriteCities(newFavorites)
+    if (city.cityName === citysName) {
+      setIsFavorite(false);
+    }
+  }
 
   const fetchWeather = useCallback(async (latitudeLongitude, temperature_unit) => {
-    console.log(temperature_unit, temperature_unit==='°C', '999')
     try {
       const result = await getCityWeatherCurrent({
         ...latitudeLongitude,
@@ -352,31 +412,49 @@ function Weather_Current() {
           className="absolute top-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-gray-600 rounded-lg z-10 border-2 border-solid border-gray-400"
           onClick={() => {setShowPopup(true)}}
         >
-          <div className="">
-            <AlignLeft />
-          </div>
+          <AlignLeft />
         </div>
         <div
-          className="absolute bottom-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-gray-600 rounded-lg z-10 border-2 border-solid border-gray-400"
-          onClick={() => {}}
+          className="absolute bottom-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white rounded-lg z-10 border-2 border-solid border-gray-400"
+          onClick={handleFavorite}
         >
-          <div className="">
-            <Heart />
-          </div>
+          <Heart className={isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-500'} />
         </div>
       </MyCard>
       <MyPopup
         isOpen={showPopup}
         onClose={() => setShowPopup(false)}
         title="My Favorites"
-        confirmText="Confirm"
+        showConfirmButton={false}
       >
-        <p className="text-gray-600">title</p>
-        <ul className="list-disc ml-6 mt-2 text-gray-600">
-          <li>各地天氣</li>
-          <li>天氣狀況</li>
-          <li>天氣預報</li>
-        </ul>
+        <div className="text-gray-600">Favorite Cities</div>
+        {
+          favoriteCitiesList.length === 0 ? (
+            <p className="text-gray-500 mt-2">No favorite cities yet</p>
+          ) : (
+            <ul className="mt-2 space-y-2">
+              {
+                favoriteCitiesList.map((city) => (
+                  <li 
+                    key={city.cityName} 
+                    className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
+                  >
+                    <span 
+                      className="cursor-pointer flex-1"
+                      onClick={() => handleSelectFavorite(city)}
+                    >
+                      {city.cityName}
+                    </span>
+                    <X 
+                      className="w-5 h-5 text-gray-500 hover:text-red-500 transition duration-200 cursor-pointer"
+                      onClick={() =>  handleDeleteFavorite(city)}
+                    />
+                  </li>
+                ))
+              }
+            </ul>
+          )
+        }
       </MyPopup>
     </div>
   )

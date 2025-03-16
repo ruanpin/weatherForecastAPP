@@ -21,7 +21,7 @@ export default function MyPopup({
   };
   
   const handleConfirm = () => {
-    if (typeof someValue === 'function') {
+    if (typeof executeFn === 'function') {
       executeFn();
     } 
     handleClose()
