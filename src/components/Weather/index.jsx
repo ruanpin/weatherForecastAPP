@@ -116,7 +116,7 @@ function Search() {
         className="
           w-full p-3 bg-white border border-2 border-gray-400 rounded placeholder:text-gray-700
           focus:outline-none focus:border-black transition-colors duration-300 max-w-[800px]
-          rounded-[24px] 
+          rounded-[24px] border-solid
         "
         placeholder="Search for places..."
         type="text"
@@ -200,7 +200,7 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
       <ul className="
         max-w-[800px] w-full
         bg-white border border-gray-300 shadow-lg rounded-md
-        max-h-[300px] z-50
+        max-h-[300px] z-50 border-solid 
       ">
         {
           isFetching ? (
@@ -343,7 +343,7 @@ function Weather_Current() {
           <div className=" bg-red rounded">{temperature_unit}</div>
         </div> */}
         <div
-          className="absolute top-4 left-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-black rounded-lg z-10 shadow"
+          className="absolute top-4 left-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white text-gray-700 rounded-lg z-10 border-2 border-solid border-gray-400"
           onClick={() => dispatch(setTemperature_unit())}
         >
           <div className="">{temperature_unit}</div>
