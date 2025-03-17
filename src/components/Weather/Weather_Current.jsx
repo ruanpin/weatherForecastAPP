@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Wind, Droplets, Heart, AlignLeft, X, Minus } from 'lucide-react';
 import MyCard from '@/components/MyCard';
 import Loading from '@/components/Loading';
+import MyLoading from '@/components/MyLoading'
 // import MyPopup from '@/components/MyPopup';
 import { useLazyGetCityWeatherQuery } from '@/redux/services/weatherApi';
 import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing_current, setTemperature_unit, setErrorMsg } from '@/redux/slices/weatherSlice';
@@ -171,25 +172,29 @@ function Weather_Current() {
     <div className="flex justify-center items-center px-4 my-10">
       <MyCard>
         <div className="flex-1 flex justify-center items-center mb-6 md:mb-0">
-          {
-            isFetching
-            ? <Loading />
-            : <WeatherIcon className="w-32 h-32 text-gray-500"/>
-          }
+          <MyLoading isFetching={isFetching}>
+            <WeatherIcon className="w-32 h-32 text-gray-500"/>
+          </MyLoading>
         </div>
         <div className="flex flex-col text-center md:text-left flex-1 max-w-[300px] md:max-x-[350px]">
           <div className="text-[1.8em] break-words">{ citysName || '-'}</div>
-          <div className="text-[3em] break-words">{weatherData.temperature_2m || '-'} {weatherData.temperature_2m_unit || '-'}</div>
+          <MyLoading isFetching={isFetching}>
+            <div className="text-[3em] break-words">{weatherData.temperature_2m || '-'} {weatherData.temperature_2m_unit || '-'}</div>
+          </MyLoading>
         </div>
         <div className="flex flex-col gap-2 justify-center md:justify-start flex-1">
-          <div className="flex items-center gap-3 justify-center justify-start">
-            <Wind className="w-9 h-9 text-black" />
-            <span className="text-[1.5em] break-words">{weatherData.wind_speed_10m || '-'} {weatherData.wind_speed_10m_unit || '-'}</span>
-          </div>
-          <div className="flex items-center gap-3 justify-center justify-start">
-            <Droplets className="w-9 h-9 text-black" />
-            <span className="text-[1.5em] break-words">{weatherData.relative_humidity_2m || '-'} {weatherData.relative_humidity_2m_unit || '-'}</span>
-          </div>
+          <MyLoading isFetching={isFetching}>
+            <div className="flex items-center gap-3 justify-center justify-start">
+              <Wind className="w-9 h-9 text-black" />
+              <span className="text-[1.5em] break-words">{weatherData.wind_speed_10m || '-'} {weatherData.wind_speed_10m_unit || '-'}</span>
+            </div>
+          </MyLoading>
+          <MyLoading isFetching={isFetching}>
+            <div className="flex items-center gap-3 justify-center justify-start">
+              <Droplets className="w-9 h-9 text-black" />
+              <span className="text-[1.5em] break-words">{weatherData.relative_humidity_2m || '-'} {weatherData.relative_humidity_2m_unit || '-'}</span>
+            </div>
+          </MyLoading>
         </div>
         {/* 攝氏華氏轉換開關 */}
         <div
@@ -206,16 +211,16 @@ function Weather_Current() {
           <AlignLeft />
         </div>
         {/* 收藏愛心 */}
-        {
-          citysName && citysName !== 'City not found' && (
-            <div
-              className="absolute bottom-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center rounded-lg z-10"
-              onClick={handleFavorite}
-            >
-              <Heart className={isFavorite ? 'fullHeart' : 'emptyHeart'} />
-            </div>
-          )
-        }
+          {
+            citysName && citysName !== 'City not found' && (
+              <div
+                className="absolute bottom-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center rounded-lg z-10"
+                onClick={handleFavorite}
+              >
+                <Heart className={isFavorite ? 'fullHeart' : 'emptyHeart'} />
+              </div>
+            )
+          }
       </MyCard>
       {/* 收藏城市彈窗 */}
       <Suspense fallback={<div className="absolute flex justify-center items-center pb-6"><Loading /></div>}>

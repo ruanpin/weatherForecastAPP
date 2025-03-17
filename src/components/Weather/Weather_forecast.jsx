@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import MyBox from '@/components/MyBox';
-import Loading from '@/components/Loading';
+import MyLoading from '@/components/MyLoading'
 import { useLazyGetCityWeatherQuery } from '@/redux/services/weatherApi';
 import { setIsSearchProcessing_forecast, setErrorMsg } from '@/redux/slices/weatherSlice';
 import { formatWeatherData_daily } from '@/utils/formatWeatherData';
@@ -9,22 +9,22 @@ import { WeatherCodeToIconComponent } from './index';
 
 const ForecastItem = ({ item, index, isFetching }) => (
   <MyBox key={item.time + String(index)}>
-    <div>{item.time || '-'}</div>
-    {
-      (item.temperature_2m_min === 'no data' || item.temperature_2m_max === 'no data') ? (
-        <div>no data</div>
-      ) : (
-        <div>{item.temperature_2m_min || '-'}{item.temperature_2m_min_unit || '-'} / {item.temperature_2m_max || '-'}{item.temperature_2m_max_unit || '-'}</div>
-      )
-    }
-    <div>
+    <MyLoading isFetching={isFetching}>
+      <div>{item.time || '-'}</div>
+    </MyLoading>
+    <MyLoading isFetching={isFetching}>
       {
-        isFetching ? (
-          <Loading />
+        (item.temperature_2m_min === 'no data' || item.temperature_2m_max === 'no data') ? (
+          <div>no data</div>
         ) : (
-          <WeatherCodeToIconComponent code={item.weatherCode} />
+          <div>{item.temperature_2m_min || '-'}{item.temperature_2m_min_unit || '-'} / {item.temperature_2m_max || '-'}{item.temperature_2m_max_unit || '-'}</div>
         )
       }
+    </MyLoading>
+    <div>
+      <MyLoading isFetching={isFetching}>
+        <WeatherCodeToIconComponent code={item.weatherCode} />
+      </MyLoading>
     </div>
   </MyBox>
 );
