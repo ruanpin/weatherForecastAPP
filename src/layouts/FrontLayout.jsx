@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import Loading from '@/components/Loading'
 import { setErrorMsg } from '@/redux/slices/weatherSlice';
+import { X } from 'lucide-react';
 
 export default function FrontLayout() {
   const dispatch = useDispatch();
@@ -15,7 +16,7 @@ export default function FrontLayout() {
     <div className="flex flex-col min-h-screen relative">
       {
         isSearchProcessing_current || isSearchProcessing_forecast ? (
-        <div className="absolute top-0 left-0 right-0 bottom-0 bg-gray-800 opacity-50 flex justify-center items-center z-99">
+        <div className="absolute top-0 left-0 right-0 bottom-0 bg-gray-800 opacity-50 flex justify-center items-center z-50">
           <Loading size={'w-25 h-25'}/>
         </div>) : ''
       }
@@ -25,9 +26,9 @@ export default function FrontLayout() {
       </main>
       {
         isError && (
-          <div classname="fixed bottom-0 px-[16px] flex justify-center w-screen">
+          <div className="fixed bottom-0 px-[16px] flex justify-center w-screen">
             <div className="
-              p-4 bg-[#EFC9C4] text-white rounded-lg shadow-lg z-100 
+              p-4 bg-[#EFC9C4] text-white rounded-lg shadow-lg z-50 
             ">
               <div className="text-xl font-bold text-[#344D86] flex justify-between">
                 <div>Error</div>
