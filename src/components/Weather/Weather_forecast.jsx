@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import MyBox from '@/components/MyBox';
+import Loading from '@/components/Loading';
 import { useLazyGetCityWeatherQuery } from '@/redux/services/weatherApi';
 import { setIsSearchProcessing_forecast, setErrorMsg } from '@/redux/slices/weatherSlice';
 import { formatWeatherData_daily } from '@/utils/formatWeatherData';
 import { WeatherCodeToIconComponent } from './index';
 
-const ForecastItem = ({ item, index }) => (
+const ForecastItem = ({ item, index, isFetching }) => (
   <MyBox key={item.time + String(index)}>
     <div>{item.time || '-'}</div>
     {
@@ -17,7 +18,13 @@ const ForecastItem = ({ item, index }) => (
       )
     }
     <div>
-      <WeatherCodeToIconComponent code={item.weatherCode} />
+      {
+        isFetching ? (
+          <Loading />
+        ) : (
+          <WeatherCodeToIconComponent code={item.weatherCode} />
+        )
+      }
     </div>
   </MyBox>
 );
@@ -32,7 +39,7 @@ const WelcomeMessage = () => (
 function Weather_forecast() {
   const dispatch = useDispatch();
   const citysLatitudeLongitude = useSelector((state) => state.weather.citysLatitudeLongitude);
-  const [getCityWeather] = useLazyGetCityWeatherQuery();
+  const [getCityWeather, { isFetching }] = useLazyGetCityWeatherQuery();
   const [weatherData, setWeatherData] = useState([]);
   const temperature_unit = useSelector((state) => state.weather.temperature_unit);
 
@@ -73,7 +80,7 @@ function Weather_forecast() {
       <div className="relative flex flex-col items-center py-4 md:py-6 px-4 md:px-8 bg-[#F7F6F9] w-full max-w-[800px] rounded-[24px] gap-2 md:gap-3">
         {
           weatherData.map((item, index) => (
-            <ForecastItem key={item.time + index} item={item} index={index} />
+            <ForecastItem key={item.time + index} item={item} index={index} isFetching={isFetching}/>
           ))
         }
       </div>
