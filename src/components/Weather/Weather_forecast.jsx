@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import MyBox from '@/components/MyBox';
-import { useLazyGetCityWeatherCurrentQuery } from '@/redux/services/weatherApi';
+import { useLazyGetCityWeatherQuery } from '@/redux/services/weatherApi';
 import { setIsSearchProcessing_forecast, setErrorMsg } from '@/redux/slices/weatherSlice';
 import { formatWeatherData_daily } from '@/utils/formatWeatherData';
 import { WeatherCodeToIconComponent } from './index';
@@ -32,14 +32,14 @@ const WelcomeMessage = () => (
 function Weather_forecast() {
   const dispatch = useDispatch();
   const citysLatitudeLongitude = useSelector((state) => state.weather.citysLatitudeLongitude);
-  const [getCityWeatherCurrent] = useLazyGetCityWeatherCurrentQuery();
+  const [getCityWeather] = useLazyGetCityWeatherQuery();
   const [weatherData, setWeatherData] = useState([]);
   const temperature_unit = useSelector((state) => state.weather.temperature_unit);
 
   // 取得未來天氣狀況feftch
   const fetchWeather = useCallback(async (latitudeLongitude, temperature_unit) => {
     try {
-      const result = await getCityWeatherCurrent({
+      const result = await getCityWeather({
         ...latitudeLongitude,
         params: `&daily=temperature_2m_max,temperature_2m_min,weather_code${temperature_unit === '°C' ? '' : '&temperature_unit=fahrenheit'}`
       }).unwrap();
@@ -51,7 +51,7 @@ function Weather_forecast() {
     } finally {
       dispatch(setIsSearchProcessing_forecast(false));
     }
-  }, [getCityWeatherCurrent, dispatch]);
+  }, [getCityWeather, dispatch]);
   
   // 當城市座標變更時的副作用處理
   useEffect(() => {

@@ -4,7 +4,7 @@ import { Wind, Droplets, Heart, AlignLeft, X, Minus } from 'lucide-react';
 import MyCard from '@/components/MyCard';
 import Loading from '@/components/Loading';
 // import MyPopup from '@/components/MyPopup';
-import { useLazyGetCityWeatherCurrentQuery } from '@/redux/services/weatherApi';
+import { useLazyGetCityWeatherQuery } from '@/redux/services/weatherApi';
 import { setLatitudeLongitude, setSelectedCity, setIsSearchProcessing_current, setTemperature_unit, setErrorMsg } from '@/redux/slices/weatherSlice';
 import { weatherCodeToIcon } from './index';
 
@@ -45,7 +45,7 @@ function Weather_Current() {
   const dispatch = useDispatch();
   const citysName = useSelector((state) => state.weather.selectedCity);
   const citysLatitudeLongitude = useSelector((state) => state.weather.citysLatitudeLongitude);
-  const [getCityWeatherCurrent, { isFetching }] = useLazyGetCityWeatherCurrentQuery();
+  const [getCityWeather, { isFetching }] = useLazyGetCityWeatherQuery();
   const [weatherData, setWeatherData] = useState({
     weatherCode: "",
     temperature_2m: "",
@@ -124,7 +124,7 @@ function Weather_Current() {
   // 取得城市當前天氣狀況fetch
   const fetchWeather = useCallback(async (latitudeLongitude, temperature_unit) => {
     try {
-      const result = await getCityWeatherCurrent({
+      const result = await getCityWeather({
         ...latitudeLongitude,
         params: `&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code${temperature_unit === '°C' ? '' : '&temperature_unit=fahrenheit'}`
       }).unwrap();
@@ -144,7 +144,7 @@ function Weather_Current() {
     } finally {
       dispatch(setIsSearchProcessing_current(false));
     }
-  }, [getCityWeatherCurrent, dispatch]);
+  }, [getCityWeather, dispatch]);
   
   // 城市座標變動時(from Redux)副作用處理
   useEffect(() => {
