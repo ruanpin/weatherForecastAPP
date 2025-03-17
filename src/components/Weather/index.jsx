@@ -502,7 +502,7 @@ function Weather_forecast() {
   }, [citysLatitudeLongitude.latitude, citysLatitudeLongitude.longitude, dispatch, fetchWeather, citysLatitudeLongitude, temperature_unit])
 
   if (weatherData.length === 0) return (
-    <div className="text-center font-semibold mt-[2.5em]">
+    <div className="text-center font-semibold my-[2.5em]">
       <div className="text-[1.7rem]">Welcome!</div>
       <div className="text-[1.3rem]">Please enter the city name<span className="whitespace-nowrap">{' : )~'}</span></div>
     </div>
@@ -516,10 +516,17 @@ function Weather_forecast() {
         "
       >
         {
-          weatherData.map((item) => (
-            <MyBox key={item.time}>
+          weatherData.map((item, index) => (
+            <MyBox key={item.time + String(index)}>
               <div>{item.time || '-'}</div>
-              <div>{item.temperature_2m_min || '-'}{item.temperature_2m_min_unit || '-'} / {item.temperature_2m_max || '-'}{item.temperature_2m_max_unit || '-'}</div>
+              {
+                (item.temperature_2m_min === 'no data' || item.temperature_2m_max === 'no data') ? (
+                  <div>no data</div>
+                ) : (
+                  <div>{item.temperature_2m_min || '-'}{item.temperature_2m_min_unit || '-'} / {item.temperature_2m_max || '-'}{item.temperature_2m_max_unit || '-'}</div>
+                )
+              }
+              
               <div>
                 <WeatherCodeToIconComponent code={item.weatherCode}/>
               </div>
