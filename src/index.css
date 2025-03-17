@@ -24,6 +24,40 @@ input[type="checkbox"] {
   accent-color: black;
 }
 
+input {
+  border-color: #9CA3AF;
+}
+input:focus {
+  border-color: black;
+  outline: none;
+}
+/* 以下針對mac版safari重設 */
+.placeholder-text-gray-700::placeholder {
+  color: #374151;
+}
+.hover-bg-gray-200:hover {
+  background: #E5E7EB;
+}
+.border-gray-300 {
+  border-color: #D1D5DB;
+}
+.border-gray-400 {
+  border-color: #9CA3AF;
+}
+
+.text-gray-300 {
+  color: #D1D5DB;
+}
+.text-gray-500 {
+  color: #6B7280;
+}
+.text-gray-600 {
+  color: #4B5563;
+}
+.text-gray-700 {
+  color: #374151;
+}
+
 a {
   font-weight: 500;
   color: #646cff;

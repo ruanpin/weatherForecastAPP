@@ -73,7 +73,7 @@ export default function Search() {
       <div className="px-4 flex justify-center items-center relative" ref={searchRef}>
         <MyInput
           className="
-            w-full p-3 bg-white border border-2 border-gray-400 rounded placeholder:text-gray-700
+            w-full p-3 bg-white border border-2 border-gray-400 rounded placeholder-text-gray-700
             focus:outline-none focus:border-black transition-colors duration-300 max-w-[800px]
             rounded-[24px] border-solid
           "

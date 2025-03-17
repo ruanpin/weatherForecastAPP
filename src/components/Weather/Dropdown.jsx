@@ -67,7 +67,7 @@ function Dropdown({ isFetching, isError, dropdownList, setCityName, setIsDropdow
             dropdownList?.map((city) => (
               <li
                 key={city.id}
-                className="p-2 hover:bg-gray-200 cursor-pointer"
+                className="p-2 hover-bg-gray-200 cursor-pointer"
                 onClick={() => handleDropdownSelect(`${city.name}, ${city.country}`)}
               >
                 {city.name}, {city.country}
