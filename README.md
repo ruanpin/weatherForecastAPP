@@ -1,6 +1,7 @@
 # 線上應用程式連結
 https://weather-forecast-app-sage-six.vercel.app/
 
+
 # 專案描述
 **Project Name:**  
 Weather Forecast App  
@@ -35,8 +36,16 @@ React + JavaScript + Vite ，並整合 Redux + RTK query、Tailwind CSS、React-
 在城市當前天氣狀況區塊中，左上°C／°F按鈕為切換為攝氏/華氏溫度功能，符號代表著當前為攝氏問度或者是華氏溫度  
 
 **7.最佳化應用效能**  
-收藏城市彈窗使用Lazy Loading、Code Splitting優化效能
+收藏城市彈窗使用Lazy Loading、Code Splitting優化效能  
 
+
+
+# 單元測試  
+**1.Redux/slices測試**  
+針對weatherSlice.js單元測試  
+
+**2.Utils測試**  
+針對utils單元測試  
 
 
 # 如何在本地端運行專案
