@@ -72,6 +72,43 @@ img {
   touch-action: none; /* 禁止觸摸操作 */
 }
 
+/* Special mask for loading overlay & dialog background */
+.spacialMask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(31, 41, 55, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spacialMask-inner {
+  position: relative;
+  z-index: 10000;
+}
+
+.spacialLi {
+  background-color: #f9fafb;
+  transition: background-color 0.2s ease;
+}
+
+.spacialLi + .spacialLi {
+  margin-top: 8px;
+}
+
+.fullHeart {
+  color: #FF6367;
+  fill: #FF6367;
+}
+
+.emptyHeart {
+  color: #697282;
+}
+
 /* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

@@ -49,14 +49,14 @@ export default function MyPopup({
   return (
     <div className={`
         fixed inset-0 bg-black/50 flex items-center justify-center z-50
-        transition-opacity duration-300 ease-in-out
+        transition-opacity duration-300 ease-in-out spacialMask
         ${isClosing ? 'opacity-0' : 'opacity-100'}
       `}
       onClick={handleClose}
     >
       <div className={`
           bg-white rounded-lg p-6 max-w-md w-full mx-4
-          transition-all duration-300 ease-in-out
+          transition-all duration-300 ease-in-out spacialMask-inner
           ${isClosing ? 'scale-75 opacity-0' : 'scale-100 opacity-100'}
           transform
         `}

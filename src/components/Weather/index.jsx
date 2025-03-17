@@ -417,10 +417,10 @@ function Weather_Current() {
         {
           citysName && citysName !== 'City not found' && (
             <div
-              className="absolute bottom-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center bg-white rounded-lg z-10 border-2 border-solid border-gray-400"
+              className="absolute bottom-4 right-4 cursor-pointer font-bold w-[2em] h-[2em] flex items-center justify-center rounded-lg z-10"
               onClick={handleFavorite}
             >
-              <Heart className={isFavorite ? 'text-red-500 fill-red-500' : 'text-gray-500'} />
+              <Heart className={isFavorite ? 'fullHeart' : 'emptyHeart'} />
             </div>
           )
         }
@@ -437,12 +437,14 @@ function Weather_Current() {
             favoriteCitiesList.length === 0 ? (
               <p className="text-gray-500 mt-2">No favorite cities yet</p>
             ) : (
-              <ul className="mt-2 space-y-2">
+              <ul className="mt-2">
                 {
                   favoriteCitiesList.map((city) => (
                     <li 
                       key={city.cityName} 
-                      className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
+                      className="flex items-center justify-between p-2 rounded cursor-pointer spacialLi"
+                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
+                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                       onClick={() => handleSelectFavorite(city)}
                     >
                       <span className="flex-1 h-[100%]">

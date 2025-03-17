@@ -12,36 +12,37 @@ export default function FrontLayout() {
   const isError = useSelector((state) => state.weather.isError);
   const errorMsg = useSelector((state) => state.weather.errorMsg);
 
+  const isLoading = isSearchProcessing_current || isSearchProcessing_forecast;
+
   return (
     <div className="flex flex-col min-h-screen relative">
-      {
-        isSearchProcessing_current || isSearchProcessing_forecast ? (
-        <div className="absolute top-0 left-0 right-0 bottom-0 bg-gray-800 opacity-50 flex justify-center items-center z-50">
-          <Loading size={'w-25 h-25'}/>
-        </div>) : ''
-      }
       <div className="text-center text-[1.6em] md:text-[2em] py-[.8em] font-bold mb-4">Weather Forecast App</div>
       <main className="flex-1">
         <Outlet />
       </main>
-      {
-        isError && (
-          <div className="fixed bottom-0 px-[16px] flex justify-center w-screen">
-            <div className="
-              p-4 bg-[#EFC9C4] text-white rounded-lg shadow-lg z-50 
-            ">
-              <div className="text-xl font-bold text-[#344D86] flex justify-between">
-                <div>Error</div>
-                <X
-                  onClick={() => dispatch(setErrorMsg({isError: false, errorMsg: ''}))} 
-                  className="cursor-pointer h-8 w-8"
-                />
-              </div>
-              <div className="text-[#344D86] break-words">{errorMsg}</div>
-            </div>
+      
+      {isLoading && (
+        <div className="spacialMask">
+          <div className="spacialMask-inner">
+            <Loading size={'w-25 h-25'} />
           </div>
-        )
-      }
+        </div>
+      )}
+      
+      {isError && (
+        <div className="fixed bottom-0 px-[16px] flex justify-center w-screen" style={{ zIndex: 9999 }}>
+          <div className="p-4 bg-[#EFC9C4] text-white rounded-lg shadow-lg">
+            <div className="text-xl font-bold text-[#344D86] flex justify-between">
+              <div>Error</div>
+              <X
+                onClick={() => dispatch(setErrorMsg({isError: false, errorMsg: ''}))} 
+                className="cursor-pointer h-8 w-8"
+              />
+            </div>
+            <div className="text-[#344D86] break-words">{errorMsg}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
