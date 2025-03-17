@@ -31,6 +31,16 @@ export default function MyPopup({
   useEffect(() => {
     if (isOpen) {
       setIsClosing(false);
+      // 針對彈窗開啟後頁面會跳動問題處理（因body被設置overflow-hidden導致原有滾動條消失造成的螢幕左右跳動）
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      // window.innerWidth 返回整個window的寬度，包括工具欄、滾動條、地址欄等
+      // document.documentElement.clientWidth 返回viewport的寬度，網頁內容的區域，不包括瀏覽器的工具欄、滾動條等
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+      return () => {
+        document.body.style.overflow = "";
+        document.body.style.paddingRight = "";
+      }
     }
   }, [isOpen]);
 
