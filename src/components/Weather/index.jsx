@@ -5,6 +5,10 @@ import Search from './Search'
 import Weather_Current from './Weather_Current'
 import Weather_forecast from './Weather_forecast'
 
+// 實作概念：
+// 搜尋欄元件輸入城市 >> fetch城市名 >> 下拉選單元件選擇城市 >> fetch經緯度 >>  存入Redux
+// >> 「現在天氣」、「未來天氣」元件偵測Redux中經緯度變化 >> fetch天氣資訊 >> 取得天氣概況 
+
 export const weatherCodeToIcon = {
   0: Sun,
   1: CloudSun,
