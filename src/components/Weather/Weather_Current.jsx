@@ -30,7 +30,7 @@ const FavoritesList = ({ favoriteCitiesList, handleSelectFavorite, handleDeleteF
             {city.cityName}
           </span>
           <X 
-            className="w-5 h-5 text-gray-500 hover:text-red-500 transition duration-200 cursor-pointer"
+            className="w-5 h-5 text-gray-500 hover-text-red-500 transition duration-200 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               handleDeleteFavorite(city);
